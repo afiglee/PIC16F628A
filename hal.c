@@ -82,9 +82,7 @@ void __interrupt() _Interrupt(void)
         events |= FLAG_BUTTON;
     } 
 #endif    
-    /*if (PIR1bits.TMR2IF) {
-        PIR1bits.TMR2IF = 0;
-    }*/
+   
 }
 
 void setup() {
