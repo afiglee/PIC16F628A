@@ -16,15 +16,24 @@
 #endif
 
 #define FLAG_USART_TX   0x01
+#ifdef TICK
 #define FLAG_TICK_1MS   0x04
+#endif
+
 #define FLAG_CMD        0x08
+#ifdef BUTTON
 #define FLAG_BUTTON     0x10
+#endif
 
-
+#ifdef TICK
 #define MILLISEC_TICK   65535 - 1825 // For 7.3728 MHz clock / 4
+#endif
 
 // Pins assignment
+#ifdef TICK
 #define OUT_MS          PORTAbits.RA0
+#endif
+
 #define CHAR_IN         PORTAbits.RA1
 #define USART_OVERFLOW  PORTAbits.RA2
 
@@ -59,19 +68,23 @@ void __interrupt() _Interrupt(void)
             TXREG = *msg++;
         }
     } 
+#ifdef TICK    
     if (INTCONbits.TMR0IF) {
         TMR0 = 256 - 233;
         OUT_MS = !OUT_MS;
         INTCONbits.TMR0IF = 0;
         events |= FLAG_TICK_1MS;
     } 
+#endif    
+#ifdef BUTTON    
     if (INTCONbits.INTF) {
         INTCONbits.INTF = 0;
         events |= FLAG_BUTTON;
     } 
-    if (PIR1bits.TMR2IF) {
+#endif    
+    /*if (PIR1bits.TMR2IF) {
         PIR1bits.TMR2IF = 0;
-    }
+    }*/
 }
 
 void setup() {
@@ -84,7 +97,11 @@ void setup() {
     TRISAbits.TRISA1 = 0;
     TRISAbits.TRISA2 = 0;
     TRISAbits.TRISA3 = 0;
+    
+#ifdef TICK    
     OUT_MS = 0; 
+#endif    
+    
     USART_OVERFLOW = 1;
     CHAR_IN = 1;
     
@@ -97,24 +114,30 @@ void setup() {
     // Setup IO
     OPTION_REGbits.nRBPU = 0;
     
+#ifdef TICK    
     // Set Timer 0
     OPTION_REGbits.PS  = 2; // Prescaler 1:8
     OPTION_REGbits.PSA = 0; // Prescaler to Timer 0
     OPTION_REGbits.T0CS = 0; // Timer works from internal
+#endif    
     
-    
+#ifdef PWM    
     //Set PWM
     TRISBbits.TRISB3 = 0;   // For PWM
     CCPR1L = 38;            // Arbitrary
     CCP1CONbits.CCP1M = 0xC; //PWM mode ON
     T2CONbits.T2CKPS = 1;   // 1:4 prescaler
     T2CONbits.TMR2ON = 1;   // Enable Timer 2
-    TRISBbits.TRISB5 = 0;
+#endif
     
     // Enable interrupts
     PIE1bits.RCIE = 1;      // Enable USART receive interrupt
+#ifdef TICK    
     INTCONbits.TMR0IE = 1;  // Enable Timer 0 interrupt
+#endif    
+#ifdef BUTTON    
     INTCONbits.INTE = 1;    // Enable RB0
+#endif    
     INTCONbits.PEIE = 1;    // Enable peripherial interrupt
     INTCONbits.GIE = 1;     // Enable interrupt
 }
@@ -136,6 +159,7 @@ void print(const char* m) {
     PIE1bits.TXIE = 1;    
 }
 
+#ifdef TICK
 __bit event_tick() {
     if (events & FLAG_TICK_1MS) {
         events &= ~FLAG_TICK_1MS;
@@ -143,15 +167,18 @@ __bit event_tick() {
     }
     return 0;        
 }
+#endif
 
 const char *event_cmd() {
     if (events & FLAG_CMD) {
         events &= ~FLAG_CMD;
+        
         return input;
     }    
     return 0;
 }
 
+#ifdef BUTTON
 __bit event_button() {
     if (events & FLAG_BUTTON) {
         events &= ~FLAG_BUTTON;   
@@ -159,7 +186,9 @@ __bit event_button() {
     }
     return 0;
 }
+#endif
 
 void enable_reception() {
+    input_seek = 0;
     PIE1bits.RCIE = 1;
 }

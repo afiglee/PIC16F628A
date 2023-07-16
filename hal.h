@@ -22,9 +22,11 @@ extern "C" {
     // Otherwise starts printing and returns
     void print(const char* m);
 
+#ifdef TICK
     // Events to be processed in the main loop
     // Tick 1 ms event
     __bit event_tick();
+#endif    
     
     // Command in USART is in, if not NULL
     // If not NULL, after processing command,
@@ -32,9 +34,11 @@ extern "C" {
     // With enable_reception();
     const char *event_cmd();
     
+#ifdef BUTTON    
     // Button was pressed
     __bit event_button();
-
+#endif
+    
     //To be called after command received and processed
     void enable_reception();
     

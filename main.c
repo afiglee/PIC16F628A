@@ -12,7 +12,7 @@
 #include "logic.h"
 
 const char *version = "SPI Utility\r\n"
-                      " version 1.6\r\n"
+                      " version 1.7\r\n"
                       " Type ? for help and press enter\r\n"
                       "$";
 
@@ -21,12 +21,16 @@ void main(void) {
     print(version);
    
     while (1) {
+#ifdef TICK        
         if (event_tick()) {
             
         }
+#endif      
+#ifdef BUTTON        
         if (event_button()) {
             
         }
+#endif        
         const char *cmd = event_cmd();
         if (cmd) {
             on_cmd(cmd);
