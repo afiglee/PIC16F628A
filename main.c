@@ -12,7 +12,8 @@
 #include "logic.h"
 
 const char *version = "SPI Utility\r\n"
-                      " version 1.7\r\n"
+                      __DATE__" "__TIME__"\r\n"
+                      " version 1.10\r\n"
                       " Type ? for help and press enter\r\n"
                       "$";
 

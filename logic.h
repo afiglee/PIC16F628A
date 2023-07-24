@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-    const char *on_cmd(const char *);
+    void on_cmd(const char *);
 
 
 
