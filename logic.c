@@ -52,6 +52,7 @@ void on_cmd(const char *msg) {
     do {
         if (*msg == '?') {
             print_help();
+#ifdef SPI            
         } else if (!strncmp(msg, "spi", 3)) {
             if (!strncmp(msg + 3, " mode", 5)) {
                 if (*(msg + 8) == ' ') {
@@ -154,6 +155,7 @@ void on_cmd(const char *msg) {
                 *out_hex = 0;
                 print(buf_out);
             }
+#endif
         } else {
             print(msg);
         }

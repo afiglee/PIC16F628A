@@ -111,7 +111,7 @@ void setup() {
     OPTION_REGbits.nRBPU = 0;
 
 #ifdef TICK    
-    OUT_MS_TRICK = 0;
+    OUT_MS_TICK = 0;
 #endif    
 
     TRISAbits.TRISA1 = 0;
