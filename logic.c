@@ -52,6 +52,57 @@ void on_cmd(const char *msg) {
     do {
         if (*msg == '?') {
             print_help();
+        } else if (!strncmp(msg, "time", 4)){
+            uint8_t len = strlen(msg);
+            if (len>4) {
+              if (*(msg + 4) != ' ' || len != 13 || *(msg + 7) != ':' || *(msg + 10) != ':') {
+                  print_help();
+                  break;
+              }
+              uint8_t hours = 0, min = 0, sec = 0;
+              //Assuming all chars are digits
+              hours = (*(msg + 5) - '0') << 4;
+              hours |= *(msg + 6) - '0';
+
+              min = (*(msg + 8) - '0') << 4;
+              min |= *(msg + 9) - '0';
+
+              sec = (*(msg + 11) - '0') << 4;
+              sec |= *(msg + 12) - '0';
+              
+              enum spi_mode old_mode = spi_get_mode();
+              spi_set_mode(spi_mode_3);
+              spi_cs_down();
+          
+              spi_exchange(0x80); //sec start address
+              spi_exchange(sec);
+              spi_exchange(min);
+              spi_exchange(hours);
+
+              spi_cs_up();
+              spi_set_mode(old_mode);
+            } 
+            enum spi_mode old_mode = spi_get_mode();
+            spi_set_mode(spi_mode_3);
+            spi_cs_down();
+            //dummy call to set start address
+            uint8_t sec = spi_exchange(0x00);
+            sec = spi_exchange(0x00);
+            uint8_t min = spi_exchange(0x00);
+            uint8_t hours = spi_exchange(0x00);
+            spi_cs_up();
+            spi_set_mode(old_mode);
+            buf_out[0] = '0' + (hours >> 4);
+            buf_out[1] = '0' + (hours & 0x0F);
+            buf_out[2] = ':';
+            buf_out[3] = '0' + (min >> 4);
+            buf_out[4] = '0' + (min & 0x0F);
+            buf_out[5] = ':';
+            buf_out[6] = '0' + (sec >> 4);
+            buf_out[7] = '0' + (sec & 0x0F);
+            buf_out[8] = 0;
+            print(buf_out);
+            
         } else if (!strncmp(msg, "spi", 3)) {
             if (!strncmp(msg + 3, " mode", 5)) {
                 if (*(msg + 8) == ' ') {
