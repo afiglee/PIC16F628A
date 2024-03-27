@@ -61,6 +61,9 @@ static const char *msg;
 void __interrupt() _Interrupt(void) {
     if (PIR1bits.RCIF) {
         in = RCREG;
+#ifdef ECHO
+       TXREG = in;
+#endif
         CHAR_IN = !CHAR_IN;
         if (in == 127) { //backspace
             if (input_seek) {
